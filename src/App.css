@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+:root {
+	background-color: #fafafa;
+	padding-bottom: 20px;
+}
 
 .border-custom {
 	border: 1px solid hsl(0deg 0% 0% / 8%);
@@ -68,4 +72,38 @@ button:before {
 button:-webkit-details-marker {
 	display: none;
 }
+
+.loader2 {
+	width: 30px;
+	height: 30px;
+	border: 5px dotted #3d3d3d;
+	border-radius: 50%;
+	display: inline-block;
+	position: relative;
+	box-sizing: border-box;
+	animation: rotation 2s linear infinite;
+}
+
+.loader {
+	width: 48px;
+	height: 48px;
+	border: 5px dotted #3d3d3d;
+	border-radius: 50%;
+	display: inline-block;
+	position: absolute;
+	top: 50%;
+	left: calc(50% - 20px);
+	transform: translate(-50%, -50%);
+	box-sizing: border-box;
+	animation: rotation 2s linear infinite;
+}
+
   
+@keyframes rotation {
+	0% {
+	  transform: rotate(0deg);
+	}
+	100% {
+	  transform: rotate(360deg);
+	}
+} 
