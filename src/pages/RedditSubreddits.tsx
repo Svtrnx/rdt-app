@@ -13,7 +13,7 @@ export default function RedditSubreddits() {
     const [navigation, setNavigation] = useState<string>('home');
     const [subredditName, setSubredditName] = useState<string>('');
     const [subredditUrl, setSubredditUrl] = useState<string>('');
-    const [afterName, setAfterName] = useState('')
+    const [afterNameSubbreddits, setAfterNameSubbreddits] = useState('')
     const [afterNameThreads, setAfterNameThreads] = useState('')
 
     const infiniteScroll = async () => {
@@ -21,10 +21,10 @@ export default function RedditSubreddits() {
         setLoading(true)
         try {
             if (navigation === 'home') {
-                const newSubreddits = await getSubreddits(afterName)
+                const newSubreddits = await getSubreddits(afterNameSubbreddits)
                 if (newSubreddits.length > 0) {
                     setSubreddits((prev) => [...prev, ...newSubreddits])
-                    setAfterName(newSubreddits[newSubreddits.length - 1].name)
+                    setAfterNameSubbreddits(newSubreddits[newSubreddits.length - 1].name)
                 }
             }
             else {
@@ -53,7 +53,7 @@ export default function RedditSubreddits() {
         }
         window.addEventListener("scroll", handleScroll)
         return () => window.removeEventListener("scroll", handleScroll)
-    }, [afterName, infiniteScroll])
+    }, [afterNameSubbreddits, infiniteScroll])
     
 
     const fetchThreads = async (subredditUrl: string, subredditTitle: string) => {
@@ -95,7 +95,7 @@ export default function RedditSubreddits() {
                 {loading && <span className="loader"></span>}
                 {threads.length > 0 && (
                     <div className="mt-6">
-                        <button className="ml-4" onClick={() => {setNavigation('home'); setAfterName('')}}>← Back</button>
+                        <button className="ml-4" onClick={() => {setNavigation('home'); setAfterNameSubbreddits(''); setAfterNameThreads('');}}>← Back</button>
                         <h2 className="text-lg flex gap-2 place-self-center pt-3 pb-3">Subreddit <span className="font-bold">{subredditName}</span>threads</h2>
                         <ul className="space-y-2">
                             {threads.map((thread, index) => (
