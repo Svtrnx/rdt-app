@@ -5,31 +5,63 @@ import { Subreddit } from "../types/subredditTypes.ts";
 import { Thread } from "../types/threadTypes.ts";
 
 
-
 export default function RedditSubreddits() {
 
 	const [subreddits, setSubreddits] = useState<Subreddit[]>([]);
     const [threads, setThreads] = useState<Thread[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [navigation, setNavigation] = useState<string>('home');
-    const [subreddit, setSubreddit] = useState<string>('');
+    const [subredditName, setSubredditName] = useState<string>('');
+    const [subredditUrl, setSubredditUrl] = useState<string>('');
+    const [afterName, setAfterName] = useState('')
 
-
+    const infiniteScroll = async () => {
+        if (loading) return;
+        setLoading(true)
+        try {
+            if (navigation === 'home') {
+                const newSubreddits = await getSubreddits(afterName)
+                if (newSubreddits.length > 0) {
+                    setSubreddits((prev) => [...prev, ...newSubreddits])
+                    setAfterName(newSubreddits[newSubreddits.length - 1].name)
+                }
+            }
+            else {
+                const fetchedThreads = await getThreads(subredditUrl);
+                setThreads((prev) => [...prev, ...fetchedThreads])
+                setAfterName(fetchedThreads[fetchedThreads.length - 1].name)
+            }
+        } catch (error) {
+            console.error("Error:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+    
     useEffect(() => {
-        getSubreddits().then((fetchedSubreddits) => {
-            setSubreddits(fetchedSubreddits);
-        })
+        infiniteScroll()
     }, []);
 
-    const fetchThreads = (subredditUrl: string, subredditTitle: string) => {
+    useEffect(() => {
+        const handleScroll = () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            infiniteScroll()
+            }
+        }
+        window.addEventListener("scroll", handleScroll)
+        return () => window.removeEventListener("scroll", handleScroll)
+    }, [afterName, infiniteScroll])
+    
+
+    const fetchThreads = async (subredditUrl: string, subredditTitle: string) => {
         setThreads([]);
-        setSubreddit(subredditTitle);
+        setSubredditName(subredditTitle);
+        setSubredditUrl(subredditUrl);
         setLoading(true);
         setNavigation('threads');
-        getThreads(subredditUrl).then((fetchedThreads) => {
-            setThreads(fetchedThreads);
-            setLoading(false);
-        })
+        const fetchedThreads = await getThreads(subredditUrl);
+        setThreads(fetchedThreads);
+        setLoading(false);
     };
 
     return (
@@ -47,25 +79,36 @@ export default function RedditSubreddits() {
                         </div>
                         ))}
                     </div>
+                    {subreddits && subreddits.length > 0 && loading ? 
+                    <div style={{display: 'grid', justifyItems: 'center', marginTop: '30px'}}>
+                        <span className="loader2"></span>
+                    </div>
+                    : null }
                 </>
             :
             <>
-                {loading && <p>Loading threads...</p>}
+                {loading && <span className="loader"></span>}
                 {threads.length > 0 && (
                     <div className="mt-6">
-                    <button onClick={() => {setNavigation('home')}}>← Back</button>
-                    <h2 className="text-lg flex gap-2 place-self-center pt-3 pb-3">Subreddit <span className="font-bold">{subreddit}</span>threads</h2>
-                    <ul className="space-y-2">
-                        {threads.map((thread, index) => (
-                        <li key={index} className="p-4 border-custom rounded">
-                            <h3 className="text-md font-semibold">{thread.title}</h3>
-                            <p className="text-sm text-gray-500">by {thread.author}</p>
-                            <p className="text-sm mt-2">{thread.text}</p>
-                            <a href={thread.link} target="_blank" rel="noopener noreferrer" className="text-green-500">Open Thread</a>
-                        </li>
-                        ))}
-                    </ul>
+                        <button className="ml-4" onClick={() => {setNavigation('home'); setAfterName('')}}>← Back</button>
+                        <h2 className="text-lg flex gap-2 place-self-center pt-3 pb-3">Subreddit <span className="font-bold">{subredditName}</span>threads</h2>
+                        <ul className="space-y-2">
+                            {threads.map((thread, index) => (
+                            <li key={index} className="p-4 ml-4 border-custom rounded">
+                                <h3 className="text-md font-semibold">{thread.title}</h3>
+                                <p className="text-sm text-gray-500">by {thread.author}</p>
+                                <p className="text-sm mt-2">{thread.text}</p>
+                                <a href={thread.link} target="_blank" rel="noopener noreferrer" className="text-green-500">Open Thread</a>
+                            </li>
+                            ))}
+                        </ul>
+                        {threads && threads.length > 0 && loading ? 
+                            <div style={{display: 'grid', justifyItems: 'center', marginTop: '30px'}}>
+                                <span className="loader2"></span>
+                            </div>
+                        : null }
                     </div>
+                    
                 )}
             </>
             }

@@ -7,6 +7,7 @@ const ThreadSchema = z.object({
 	author: z.string(),
 	permalink: z.string(),
 	selftext: z.string(),
+	name: z.string(),
 });
 
 const RedditResponseSchema = z.object({
@@ -17,15 +18,15 @@ const RedditResponseSchema = z.object({
   	}),
 });
 
-export function getThreads(subredditUrl: string) {
-		return axios.get(`${REDDIT_BASE_URL}${subredditUrl}.json`).then((response) => {
+export async function getThreads(subredditUrl: string) {
+		return await axios.get(`${REDDIT_BASE_URL}${subredditUrl}.json`).then((response) => {
 			const parsedData = RedditResponseSchema.parse(response.data);
-
 			return parsedData.data.children.map((child) => ({
 				title: child.data.title,
 				author: child.data.author,
 				link: `${REDDIT_BASE_URL}${child.data.permalink}`,
 				text: child.data.selftext,
+				name: child.data.name,
 			}));
 		}).catch((error) => {
 			console.error("getThreads error:", error);

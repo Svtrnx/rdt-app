@@ -3,5 +3,6 @@ export interface Subreddit {
 	description: string;
 	image: string;
 	url: string;
+	name: string;
 }
   

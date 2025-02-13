@@ -3,5 +3,6 @@ export interface Thread {
 	author: string;
 	link: string;
 	text: string;
+	name: string;
 }
   
