@@ -14,6 +14,7 @@ export default function RedditSubreddits() {
     const [subredditName, setSubredditName] = useState<string>('');
     const [subredditUrl, setSubredditUrl] = useState<string>('');
     const [afterName, setAfterName] = useState('')
+    const [afterNameThreads, setAfterNameThreads] = useState('')
 
     const infiniteScroll = async () => {
         if (loading) return;
@@ -27,9 +28,11 @@ export default function RedditSubreddits() {
                 }
             }
             else {
-                const fetchedThreads = await getThreads(subredditUrl);
-                setThreads((prev) => [...prev, ...fetchedThreads])
-                setAfterName(fetchedThreads[fetchedThreads.length - 1].name)
+                const fetchedThreads = await getThreads(subredditUrl, afterNameThreads);
+                if (fetchedThreads.length > 0) {
+                    setThreads((prev) => [...prev, ...fetchedThreads])
+                    setAfterNameThreads(fetchedThreads[fetchedThreads.length - 1].name)
+                }
             }
         } catch (error) {
             console.error("Error:", error)
@@ -59,8 +62,9 @@ export default function RedditSubreddits() {
         setSubredditUrl(subredditUrl);
         setLoading(true);
         setNavigation('threads');
-        const fetchedThreads = await getThreads(subredditUrl);
+        const fetchedThreads = await getThreads(subredditUrl, afterNameThreads);
         setThreads(fetchedThreads);
+        setAfterNameThreads(fetchedThreads[fetchedThreads.length - 1].name)
         setLoading(false);
 
     };
