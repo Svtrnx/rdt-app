@@ -18,6 +18,7 @@ const RedditResponseSchema = z.object({
   	}),
 });
 
+
 export async function getThreads(subredditUrl: string, after: string) {
 		return await axios.get(`${REDDIT_BASE_URL}${subredditUrl}.json?after=${after}`).then((response) => {
 			const parsedData = RedditResponseSchema.parse(response.data);
