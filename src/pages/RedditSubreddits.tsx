@@ -62,6 +62,7 @@ export default function RedditSubreddits() {
         const fetchedThreads = await getThreads(subredditUrl);
         setThreads(fetchedThreads);
         setLoading(false);
+
     };
 
     return (
@@ -109,6 +110,7 @@ export default function RedditSubreddits() {
                         : null }
                     </div>
                     
+
                 )}
             </>
             }
